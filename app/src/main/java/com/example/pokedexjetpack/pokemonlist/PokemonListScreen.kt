@@ -68,7 +68,8 @@ import com.example.pokedexjetpack.data.remote.responses.PokemonList
  */
 @Composable
 fun PokemonListScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: PokemonListViewModel = hiltViewModel()
 ) {
 
     Surface(
@@ -92,6 +93,7 @@ fun PokemonListScreen(
                     .padding(16.dp)
             ) {
 
+                viewModel.searchPokemonList(it)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -134,7 +136,7 @@ fun SearchBar (
                 .background(Color.White, CircleShape)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
                 .onFocusChanged {
-                    isHintDisplayed = !it.isFocused
+                    isHintDisplayed = !it.isFocused && text.isNotEmpty()
                 }
 
 
@@ -159,6 +161,7 @@ fun PokemonList(
     val endreached by remember { viewModel.endReached }
     val loadError by remember { viewModel.loadError}
     val isLoading by remember { viewModel.isLoading}
+    val isSearching by remember { viewModel.isSearching}
 
     LazyColumn(contentPadding = PaddingValues(16.dp)) {
 
@@ -169,7 +172,7 @@ fun PokemonList(
         }
 
         items(itemCount) {
-            if(it >= itemCount - 1  && !endreached) {
+            if(it >= itemCount - 1  && !endreached && !isLoading) {
                 viewModel.loadPokemonPaginated()
             }
             PokedexRow(rowIndex = it, entries = pokemonList, navController = navController)
